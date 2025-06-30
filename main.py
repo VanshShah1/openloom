@@ -4,69 +4,68 @@ import numpy as np
 import time
 import os
 
-# Define screen dimensions
-screen_width, screen_height = pyautogui.size()
-
+# --- CONFIGURATION ---
 # Define the duration of the recording in seconds
 record_duration = 10
-
 # Define the frames per second for the output video
 fps = 20.0
-
-# Define the codec and create VideoWriter object
-# You can try 'XVID' or 'mp4v' depending on what codecs are available on your system
-# For macOS, 'mp4v' is usually a good choice for MP4 files
+# Define the codec. 'mp4v' is a good choice for .mp4 files on macOS and Linux.
+# You could also try 'avc1'. For .avi files, 'XVID' is common on Windows.
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
 
-# Determine the path to the desktop
-# This part might need adjustment based on your operating system
-# For macOS, it's typically /Users/YourUsername/Desktop
-# For Windows, it's typically C:\\Users\\YourUsername\\Desktop
-# For Linux, it can vary, often /home/YourUsername/Desktop
-# Replace 'YourUsername' with your actual username or make this dynamic
-# A more robust way might be to use os.path.expanduser("~/Desktop")
-# Given your workspace path is /Users/vanshshah/Documents/GitHub/openloom,
-# your desktop is likely /Users/vanshshah/Desktop
-desktop_path = os.path.expanduser("~/Desktop") # This is generally cross-platform
-
-# Define the output file name and path
+# --- SETUP OUTPUT PATH ---
+# Get the path to the user's desktop in a cross-platform way
+desktop_path = os.path.expanduser("~/Desktop")
+# Define the output file name and full path
 output_filename = os.path.join(desktop_path, 'screen_recording.mp4')
 
+# --- BUG FIX: DYNAMICALLY GET SCREEN SIZE ---
+# Take a sample screenshot to determine the correct screen dimensions.
+# This is the most reliable way to avoid size mismatches, especially on
+# HiDPI/Retina displays where scaling can cause issues.
+print("Determining screen dimensions...")
+initial_screenshot = pyautogui.screenshot()
+screen_width, screen_height = initial_screenshot.size
+print(f"Screen dimensions detected: {screen_width}x{screen_height}")
+
+# --- INITIALIZE VIDEO WRITER ---
+# Create the VideoWriter object with the guaranteed correct dimensions
 out = cv2.VideoWriter(output_filename, fourcc, fps, (screen_width, screen_height))
 
-# Calculate the number of frames to capture
-num_frames = int(record_duration * fps)
+# Check if the VideoWriter was initialized successfully
+if not out.isOpened():
+    print("Error: Could not open video writer.")
+    print("Please check the specified codec, output file path, and permissions.")
+    exit()
+
+# --- RECORDING LOOP ---
+print(f"Starting screen recording for {record_duration} seconds...")
+print(f"Output will be saved to: {output_filename}")
+
+start_time = time.time()
 
 try:
-    print(f"Starting screen recording for {record_duration} seconds...")
-
-    start_time = time.time()
-
-    for i in range(num_frames):
-        # Capture screenshot
+    # This loop will run for the specified duration
+    while (time.time() - start_time) < record_duration:
+        # Capture a screenshot
         img = pyautogui.screenshot()
 
-        # Convert the screenshot to a numpy array
+        # Convert the screenshot (PIL Image) to a numpy array
         frame = np.array(img)
 
-        # Convert RGB to BGR (OpenCV uses BGR)
+        # Convert the color space from RGB (used by pyautogui) to BGR (used by OpenCV)
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-        # Write the frame to the video file
+        # Write the BGR frame to the video file
         out.write(frame)
 
-        # Optional: Add a small delay to try and match the desired frame rate
-        # This is a simple approach and might not be perfectly accurate
-        time.sleep(1/fps)
+    print("Recording finished.")
 
-        # Check if duration has passed (alternative way to stop)
-        if time.time() - start_time > record_duration:
-            break
-
-    print(f"Recording finished. Saving video to {output_filename}")
 finally:
-    # Release the video writer object
+    # --- CLEANUP ---
+    # Always release the video writer to finalize the video file.
+    # This is crucial for preventing file corruption.
     out.release()
-    print("Video writer released.")
+    print("Video writer released. File has been saved.")
 
-print("Video saved successfully!")
+print("Process complete!")

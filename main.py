@@ -47,6 +47,10 @@ start_time = time.time()
 try:
     # This loop will run for the specified duration
     while (time.time() - start_time) < record_duration:
+        # --- FIX: Synchronize capture rate with FPS ---
+        # Record the start time of this loop iteration.
+        loop_start_time = time.time()
+
         # Capture a screenshot
         img = pyautogui.screenshot()
 
@@ -58,6 +62,16 @@ try:
 
         # Write the BGR frame to the video file
         out.write(frame)
+
+        # --- FIX: Calculate time to wait to maintain FPS ---
+        # Calculate how long the frame capture and processing took.
+        time_elapsed = time.time() - loop_start_time
+        # Calculate the required sleep time to hit the target FPS.
+        # For example, if FPS is 20, each frame should take 1/20 = 0.05 seconds.
+        # If processing took 0.02s, we sleep for the remaining 0.03s.
+        sleep_for = (1.0 / fps) - time_elapsed
+        if sleep_for > 0:
+            time.sleep(sleep_for)
 
     print("Recording finished.")
 

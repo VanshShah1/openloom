@@ -37,35 +37,36 @@ out = cv2.VideoWriter(output_filename, fourcc, fps, (screen_width, screen_height
 # Calculate the number of frames to capture
 num_frames = int(record_duration * fps)
 
-print(f"Starting screen recording for {record_duration} seconds...")
+try:
+    print(f"Starting screen recording for {record_duration} seconds...")
 
-start_time = time.time()
+    start_time = time.time()
 
-for i in range(num_frames):
-    # Capture screenshot
-    img = pyautogui.screenshot()
+    for i in range(num_frames):
+        # Capture screenshot
+        img = pyautogui.screenshot()
 
-    # Convert the screenshot to a numpy array
-    frame = np.array(img)
+        # Convert the screenshot to a numpy array
+        frame = np.array(img)
 
-    # Convert RGB to BGR (OpenCV uses BGR)
-    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        # Convert RGB to BGR (OpenCV uses BGR)
+        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-    # Write the frame to the video file
-    out.write(frame)
+        # Write the frame to the video file
+        out.write(frame)
 
-    # Optional: Add a small delay to try and match the desired frame rate
-    # This is a simple approach and might not be perfectly accurate
-    time.sleep(1/fps)
+        # Optional: Add a small delay to try and match the desired frame rate
+        # This is a simple approach and might not be perfectly accurate
+        time.sleep(1/fps)
 
-    # Check if duration has passed (alternative way to stop)
-    if time.time() - start_time > record_duration:
-        break
+        # Check if duration has passed (alternative way to stop)
+        if time.time() - start_time > record_duration:
+            break
 
-
-print(f"Recording finished. Saving video to {output_filename}")
-
-# Release the video writer object
-out.release()
+    print(f"Recording finished. Saving video to {output_filename}")
+finally:
+    # Release the video writer object
+    out.release()
+    print("Video writer released.")
 
 print("Video saved successfully!")

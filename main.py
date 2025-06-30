@@ -6,7 +6,7 @@ import os
 
 # --- CONFIGURATION ---
 # Define the duration of the recording in seconds
-record_duration = 10
+record_duration = 100
 # Define the frames per second for the output video
 fps = 20.0
 # Define the codec. 'mp4v' is a good choice for .mp4 files on macOS and Linux.

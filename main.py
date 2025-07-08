@@ -81,6 +81,10 @@ class LoomApp:
             # Calculate and print actual FPS
             actual_fps = 1 / (time.time() - start_time)
             print(f"Actual FPS: {actual_fps:.2f}")
+            
+            # Calculate and print actual FPS
+            actual_fps = 1 / (time.time() - start_time)
+            print(f"Actual FPS: {actual_fps:.2f}")
 
         out.release()
 

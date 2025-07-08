@@ -75,9 +75,13 @@ class LoomApp:
 
             end_time = time.time()
             elapsed_time = end_time - start_time
-            # Target FPS is 10, so each frame should take 0.1 seconds
-            if elapsed_time < 0.1:
-                time.sleep(0.1 - elapsed_time)
+            # Target FPS is 5, so each frame should take 0.2 seconds
+            if elapsed_time < 0.2:
+                time.sleep(0.2 - elapsed_time)
+            
+            # Calculate and print actual FPS
+            actual_fps = 1 / (time.time() - start_time)
+            print(f"Actual FPS: {actual_fps:.2f}")
 
         out.release()
 

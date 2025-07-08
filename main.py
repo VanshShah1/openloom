@@ -54,7 +54,7 @@ class LoomApp:
         screen_width, screen_height = first_screenshot.size
 
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter("output.mp4", fourcc, 30.0, (screen_width, screen_height))
+        out = cv2.VideoWriter("output.mp4", fourcc, 15.0, (screen_width, screen_height))
 
         print(f"Screen size: {screen_width}x{screen_height}")
 
@@ -71,6 +71,12 @@ class LoomApp:
             # Convert RGB to BGR
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             out.write(frame)
+
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            # Target FPS is 15, so each frame should take 0.0666 seconds
+            if elapsed_time < 0.0666:
+                time.sleep(0.0666 - elapsed_time)
 
         out.release()
 

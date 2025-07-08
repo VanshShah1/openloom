@@ -70,10 +70,6 @@ class LoomApp:
             frame = np.array(img)
             # Convert RGB to BGR
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            # Ensure frame dimensions match video writer dimensions
-            if frame.shape[1] != screen_size.width or frame.shape[0] != screen_size.height:
-                print(f"Warning: Frame dimensions ({frame.shape[1]}x{frame.shape[0]}) do not match screen size ({screen_size.width}x{screen_size.height}). Resizing frame.")
-                frame = cv2.resize(frame, (screen_size.width, screen_size.height))
             out.write(frame)
 
             end_time = time.time()

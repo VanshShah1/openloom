@@ -62,7 +62,7 @@ class LoomApp:
             print("Error: Could not open video writer.")
             return
 
-        print(f"Screen size: {screen_size.width}x{screen_size.height}")
+        print(f"Screen size: {screen_width}x{screen_height}")
 
         while self.is_recording:
             start_time = time.time()

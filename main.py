@@ -51,7 +51,7 @@ class LoomApp:
 
         screen_size = pyautogui.size()
         fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter("output.mp4", fourcc, 5.0, (screen_size.width, screen_size.height))
+        out = cv2.VideoWriter("output.mp4", fourcc, 30.0, (screen_size.width, screen_size.height))
 
         print(f"Screen size: {screen_size.width}x{screen_size.height}")
 
@@ -75,13 +75,9 @@ class LoomApp:
 
             end_time = time.time()
             elapsed_time = end_time - start_time
-            # Target FPS is 5, so each frame should take 0.2 seconds
-            if elapsed_time < 0.2:
-                time.sleep(0.2 - elapsed_time)
-            
-            # Calculate and print actual FPS
-            actual_fps = 1 / (time.time() - start_time)
-            print(f"Actual FPS: {actual_fps:.2f}")
+            # Target FPS is 30, so each frame should take 0.0333 seconds
+            if elapsed_time < 0.0333:
+                time.sleep(0.0333 - elapsed_time)
 
         out.release()
 

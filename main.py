@@ -49,11 +49,14 @@ class LoomApp:
         
         self.record_button.config(text="Stop")
 
-        screen_size = pyautogui.size()
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter("output.mp4", fourcc, 30.0, (screen_size.width, screen_size.height))
+        # Capture first screenshot to get accurate screen dimensions
+        first_screenshot = pyautogui.screenshot()
+        screen_width, screen_height = first_screenshot.size
 
-        print(f"Screen size: {screen_size.width}x{screen_size.height}")
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        out = cv2.VideoWriter("output.mp4", fourcc, 30.0, (screen_width, screen_height))
+
+        print(f"Screen size: {screen_width}x{screen_height}")
 
         if not out.isOpened():
             print("Error: Could not open video writer.")

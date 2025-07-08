@@ -35,12 +35,42 @@ class LoomApp:
     def start_recording(self):
         self.is_recording = True
         self.record_button.config(text="Recording...")
+        self.frames = []
+        self.frame_timestamps = []
         self.recording_thread = threading.Thread(target=self.record_screen)
         self.recording_thread.start()
 
     def stop_recording(self):
         self.is_recording = False
         self.record_button.config(text="Record")
+
+        if not self.frames:
+            print("No frames recorded.")
+            return
+
+        # Calculate actual FPS
+        total_duration = self.frame_timestamps[-1] - self.frame_timestamps[0]
+        actual_fps = len(self.frames) / total_duration if total_duration > 0 else 0
+        print(f"Actual recorded FPS: {actual_fps:.2f}")
+
+        # Get screen dimensions from the first frame
+        screen_height, screen_width, _ = self.frames[0].shape
+
+        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+        out = cv2.VideoWriter("output.mp4", fourcc, actual_fps, (screen_width, screen_height))
+
+        if not out.isOpened():
+            print("Error: Could not open video writer for final output.")
+            return
+
+        for frame in self.frames:
+            out.write(frame)
+
+        out.release()
+        print("Video saved as output.mp4")
+
+        self.frames = []
+        self.frame_timestamps = []
 
     def record_screen(self):
         for i in range(3, 0, -1):
@@ -49,38 +79,12 @@ class LoomApp:
         
         self.record_button.config(text="Stop")
 
-        # Capture first screenshot to get accurate screen dimensions
-        first_screenshot = pyautogui.screenshot()
-        screen_width, screen_height = first_screenshot.size
-
-        fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-        out = cv2.VideoWriter("output.mp4", fourcc, 30.0, (screen_width, screen_height))
-
-        print(f"Screen size: {screen_width}x{screen_height}")
-
-        if not out.isOpened():
-            print("Error: Could not open video writer.")
-            return
-
         while self.is_recording:
-            start_time = time.time()
             img = pyautogui.screenshot()
             frame = np.array(img)
-            # Convert RGB to BGR
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-            out.write(frame)
-
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            # Target FPS is 30, so each frame should take 0.0333 seconds
-            if elapsed_time < 0.0333:
-                time.sleep(0.0333 - elapsed_time)
-            
-            # Calculate and print actual FPS
-            actual_fps = 1 / (time.time() - start_time)
-            print(f"Actual FPS: {actual_fps:.2f}")
-
-        out.release()
+            self.frames.append(frame)
+            self.frame_timestamps.append(time.time())
 
     def start_move(self, event):
         self.x = event.x
